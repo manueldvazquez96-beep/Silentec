@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>SILENTEC — App Mayorista</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+
+<!-- PWA / Add to Home Screen -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1834FF">
+<meta name="mobile-web-app-capable" content="yes">
+
+<!-- iOS: open fullscreen when launched from home screen -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SILENTEC">
+<link rel="apple-touch-icon" href="assets/app-icon-180.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/app-icon-180.png">
+<link rel="apple-touch-startup-image" href="assets/splash-iphone.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)">
+<link rel="apple-touch-startup-image" href="assets/splash-iphone-pro-max.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; padding: 0; background: #0a0b0d; min-height: 100vh; }
+  body {
+    font-family: 'Montserrat', 'Proxima Nova', 'Inter', -apple-system, system-ui, sans-serif;
+    color: #e7e9ec; -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  * { box-sizing: border-box; }
+  button { font-family: inherit; }
+  input { font-family: inherit; }
+
+  /* Stage */
+  .stage {
+    min-height: 100vh;
+    padding: 40px 20px 80px;
+    display: flex; flex-direction: column; align-items: center;
+    gap: 32px;
+  }
+  .stage-header {
+    width: 100%; max-width: 1280px;
+    display: flex; justify-content: space-between; align-items: flex-end;
+    padding: 10px 6px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    padding-bottom: 18px;
+  }
+  .stage-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 40px; font-weight: 900; letter-spacing: -1px;
+    color: #fff; line-height: 1;
+  }
+  .stage-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 2px; color: #8a8f97;
+    text-transform: uppercase; margin-top: 6px;
+  }
+  .stage-slogan {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 2px; color: #F26722; font-weight: 700;
+    text-transform: uppercase;
+  }
+  .grid {
+    width: 100%; max-width: 1280px;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 36px 28px;
+    justify-items: center;
+  }
+  .phone-wrap {
+    display: flex; flex-direction: column; align-items: center; gap: 14px;
+  }
+  .phone-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 1.8px; color: #8a8f97;
+    text-transform: uppercase; font-weight: 600;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .phone-num {
+    color: #F26722;
+  }
+  .theme-switch {
+    position: fixed; top: 20px; right: 20px; z-index: 100;
+    display: flex; gap: 6px;
+    background: rgba(20,22,26,0.9);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.08);
+    padding: 6px; border-radius: 12px;
+  }
+  .theme-btn {
+    padding: 8px 14px; border-radius: 8px;
+    background: transparent; border: none; cursor: pointer;
+    color: #8a8f97; font-size: 12px; font-weight: 600;
+    font-family: 'Inter Tight', sans-serif;
+  }
+  .theme-btn.on { background: #1834FF; color: #fff; }
+
+  /* Tweaks panel */
+  .tweaks {
+    position: fixed; bottom: 20px; right: 20px; z-index: 100;
+    background: rgba(20,22,26,0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px; padding: 16px 18px;
+    min-width: 240px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    display: none;
+  }
+  .tweaks.open { display: block; }
+  .tweaks-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 2px; color: #8a8f97;
+    text-transform: uppercase; font-weight: 700;
+    margin-bottom: 14px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .tweaks-row {
+    margin-bottom: 12px;
+  }
+  .tweaks-label {
+    font-size: 11px; color: #8a8f97; margin-bottom: 6px;
+    font-family: 'JetBrains Mono', monospace; letter-spacing: 1px;
+  }
+  .tweaks-seg {
+    display: flex; gap: 4px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 8px; padding: 3px;
+  }
+  .tweaks-seg button {
+    flex: 1; padding: 7px 10px; border-radius: 6px;
+    background: transparent; border: none; cursor: pointer;
+    color: #d1d3d8; font-size: 11px; font-weight: 600;
+  }
+  .tweaks-seg button.on { background: #1834FF; color: #fff; }
+</style>
+</head>
+<body>
+
+<div class="theme-switch">
+  <button class="theme-btn" data-theme="industrial">Industrial</button>
+  <button class="theme-btn on" data-theme="corporate">Corporativo</button>
+  <button class="theme-btn" data-theme="engineering">Ingeniería</button>
+</div>
+
+<div class="tweaks" id="tweaks-panel">
+  <div class="tweaks-title">
+    <span>TWEAKS</span>
+    <span style="color:#1834FF">SILENTEC</span>
+  </div>
+  <div class="tweaks-row">
+    <div class="tweaks-label">TEMA VISUAL</div>
+    <div class="tweaks-seg" data-tweak="theme">
+      <button data-val="industrial">Industrial</button>
+      <button data-val="corporate" class="on">Corporate</button>
+      <button data-val="engineering">Eng.</button>
+    </div>
+  </div>
+  <div class="tweaks-row">
+    <div class="tweaks-label">LAYOUT</div>
+    <div class="tweaks-seg" data-tweak="layout">
+      <button data-val="grid" class="on">Grid</button>
+      <button data-val="flow">Flujo</button>
+    </div>
+  </div>
+  <div class="tweaks-row">
+    <div class="tweaks-label">DENSIDAD</div>
+    <div class="tweaks-seg" data-tweak="density">
+      <button data-val="comfy">Cómoda</button>
+      <button data-val="normal" class="on">Normal</button>
+    </div>
+  </div>
+</div>
+
+<div id="root"></div>
+
+<script type="application/json" id="app-defaults">
+/*EDITMODE-BEGIN*/{
+  "theme": "corporate",
+  "layout": "grid",
+  "density": "normal"
+}/*EDITMODE-END*/
+</script>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="components/ios-frame.jsx"></script>
+<script type="text/babel" src="components/tokens.jsx"></script>
+<script type="text/babel" src="components/icons.jsx"></script>
+<script type="text/babel" src="components/logo.jsx"></script>
+<script type="text/babel" src="components/data.jsx"></script>
+<script type="text/babel" src="components/screens-1.jsx"></script>
+<script type="text/babel" src="components/screens-2.jsx"></script>
+
+<script type="text/babel">
+const DEFAULTS = JSON.parse(
+  document.getElementById('app-defaults').textContent
+    .replace('/*EDITMODE-BEGIN*/', '').replace('/*EDITMODE-END*/', '')
+);
+
+function App() {
+  const [themeKey, setThemeKey] = React.useState(DEFAULTS.theme || 'industrial');
+  const [layout, setLayout] = React.useState(DEFAULTS.layout || 'grid');
+  const [density, setDensity] = React.useState(DEFAULTS.density || 'normal');
+  const [editMode, setEditMode] = React.useState(false);
+
+  window.T = window.SILENTEC_THEMES[themeKey];
+
+  // Theme switch top-right
+  React.useEffect(() => {
+    document.querySelectorAll('.theme-btn').forEach(b => {
+      b.classList.toggle('on', b.dataset.theme === themeKey);
+      b.onclick = () => setThemeKey(b.dataset.theme);
+    });
+  }, [themeKey]);
+
+  // Tweaks panel wire-up
+  React.useEffect(() => {
+    const panel = document.getElementById('tweaks-panel');
+    panel.classList.toggle('open', editMode);
+
+    panel.querySelectorAll('.tweaks-seg').forEach(seg => {
+      const key = seg.dataset.tweak;
+      seg.querySelectorAll('button').forEach(b => {
+        const curr = key === 'theme' ? themeKey : key === 'layout' ? layout : density;
+        b.classList.toggle('on', b.dataset.val === curr);
+        b.onclick = () => {
+          const v = b.dataset.val;
+          if (key === 'theme') setThemeKey(v);
+          if (key === 'layout') setLayout(v);
+          if (key === 'density') setDensity(v);
+          window.parent.postMessage({
+            type: '__edit_mode_set_keys',
+            edits: { [key]: v },
+          }, '*');
+        };
+      });
+    });
+
+    const onMsg = (e) => {
+      if (e.data?.type === '__activate_edit_mode') setEditMode(true);
+      if (e.data?.type === '__deactivate_edit_mode') setEditMode(false);
+    };
+    window.addEventListener('message', onMsg);
+    window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+    return () => window.removeEventListener('message', onMsg);
+  }, [editMode, themeKey, layout, density]);
+
+  const T = window.T;
+
+  // Screen definitions
+  const screens = [
+    { id: 'login',    title: '01 Login',        render: (nav) => <ScreenLogin onLogin={() => nav('home')}/> },
+    { id: 'home',     title: '02 Inicio',       render: (nav) => <ScreenHome onNav={nav}/>, hasTab: true },
+    { id: 'catalog',  title: '03 Catálogo',     render: (nav) => <ScreenCatalog onNav={nav}/>, hasTab: true },
+    { id: 'detail',   title: '04 Detalle',      render: (nav) => <ScreenDetail product={window.SILENTEC_PRODUCTOS[0]} onBack={() => {}}/> },
+    { id: 'chat',     title: '05 Asistente IA', render: (nav) => <ScreenChat/>, hasTab: true },
+    { id: 'reports',  title: '06 Reportes',     render: (nav) => <ScreenReports/>, hasTab: true },
+    { id: 'cart',     title: '07 Pedido',       render: (nav) => <ScreenCart/>, hasTab: true },
+    { id: 'profile',  title: '08 Cuenta',       render: (nav) => <ScreenProfile/> },
+  ];
+
+  const stageBg = T.dark
+    ? `radial-gradient(ellipse at 20% 0%, rgba(242,103,34,0.06) 0%, transparent 50%), #08090B`
+    : `linear-gradient(180deg, #EEF0F4 0%, #E3E6EC 100%)`;
+  const stageText = T.dark ? '#fff' : '#0E121C';
+  const stageSub = T.dark ? '#8a8f97' : '#5B6170';
+
+  return (
+    <div className="stage" style={{ background: stageBg, color: stageText }}>
+      <div className="stage-header">
+        <div>
+          <div className="stage-title" style={{ color: stageText }}>SILENTEC · APP MAYORISTA</div>
+          <div className="stage-sub" style={{ color: stageSub }}>iOS · 8 pantallas · cliente B2B</div>
+        </div>
+        <div style={{ textAlign: 'right' }}>
+          <div className="stage-slogan" style={{ color: T.accent }}>DISEÑADO PARA DURAR</div>
+          <div className="stage-sub" style={{ color: stageSub, marginTop: 4 }}>
+            Respaldado por COARDEL · 55 años
+          </div>
+        </div>
+      </div>
+
+      <div className="grid" style={{
+        gridTemplateColumns: layout === 'flow' ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
+        gap: density === 'comfy' ? '56px 40px' : '36px 28px',
+      }}>
+        {screens.map((s, i) => (
+          <PhoneFrame key={themeKey + s.id} num={i+1} title={s.title} dark={T.dark}
+                      hasTab={s.hasTab} T={T}>
+            {s.render(() => {})}
+            {s.hasTab && <STTabBar active={s.id} onNav={() => {}}/>}
+          </PhoneFrame>
+        ))}
+      </div>
+
+      <div style={{
+        width: '100%', maxWidth: 1280, marginTop: 16,
+        display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 20,
+        color: stageSub, fontSize: 12, lineHeight: 1.55,
+      }}>
+        <div>
+          <div style={{
+            fontFamily: 'JetBrains Mono', fontSize: 10, letterSpacing: 1.5,
+            color: T.accent, fontWeight: 700, marginBottom: 8,
+          }}>01 · SISTEMA</div>
+          <div>Marca COARDEL/SILENTEC. Paleta industrial con naranja SILENTEC (#F26722).
+          Inter Tight para display, JetBrains Mono para códigos ST y OE — refuerza el tono
+          técnico/industrial. Sin emojis, sin iconografía de stock.</div>
+        </div>
+        <div>
+          <div style={{
+            fontFamily: 'JetBrains Mono', fontSize: 10, letterSpacing: 1.5,
+            color: T.accent, fontWeight: 700, marginBottom: 8,
+          }}>02 · FLUJO B2B</div>
+          <div>Cliente mayorista → ve cuenta corriente, descuentos, plazo de pago en Home.
+          Busca por vehículo (marca → modelo) o por código OE/ST. Confirma pedido que se
+          descuenta de cuenta corriente.</div>
+        </div>
+        <div>
+          <div style={{
+            fontFamily: 'JetBrains Mono', fontSize: 10, letterSpacing: 1.5,
+            color: T.accent, fontWeight: 700, marginBottom: 8,
+          }}>03 · VARIACIONES</div>
+          <div>3 temas (arriba a la derecha): <b>Industrial</b> (piso de taller, oscuro +
+          naranja), <b>Corporativo</b> (claro, formal), <b>Ingeniería</b> (azul técnico +
+          ámbar). Activá <b>Tweaks</b> en la toolbar para más controles.</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PhoneFrame({ children, num, title, dark, hasTab, T }) {
+  return (
+    <div className="phone-wrap">
+      <div className="phone-label" style={{ color: dark ? '#8a8f97' : '#5B6170' }}>
+        <span className="phone-num" style={{ color: T.accent }}>
+          {String(num).padStart(2, '0')}
+        </span>
+        <span>·</span>
+        <span>{title.replace(/^\d+\s/, '')}</span>
+      </div>
+      <div data-screen-label={title}>
+        <IOSDevice width={290} height={628} dark={T.dark}>
+          {children}
+        </IOSDevice>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+
+</body>
+</html>

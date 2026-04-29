@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>SILENTEC</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1834FF">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SILENTEC">
+<link rel="apple-touch-icon" href="assets/app-icon-180.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/app-icon-180.png">
+<link rel="apple-touch-startup-image" href="assets/splash-iphone.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)">
+<link rel="apple-touch-startup-image" href="assets/splash-iphone-pro-max.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  html, body {
+    margin: 0; padding: 0;
+    background: #000;
+    min-height: 100vh; min-height: 100dvh;
+    overscroll-behavior: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    font-family: 'Montserrat', 'Inter', -apple-system, system-ui, sans-serif;
+    color: #000; -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+    /* Safe areas for iOS notch */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  * { box-sizing: border-box; }
+  button { font-family: inherit; }
+  input, textarea { font-family: inherit; }
+
+  /* Full-viewport app stage — the whole screen IS the phone */
+  #root {
+    width: 100vw; height: 100vh; height: 100dvh;
+    overflow: hidden;
+  }
+  .app-root {
+    width: 100%; height: 100%;
+    position: relative;
+    display: flex; flex-direction: column;
+    background: #fff;
+  }
+  .app-root.dark { background: #0A0B0E; }
+
+  /* Content area between status bar & tab bar */
+  .app-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    position: relative;
+  }
+
+  /* Loading splash before React hydrates */
+  .boot-splash {
+    position: fixed; inset: 0;
+    background: #1834FF;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 999;
+    transition: opacity .4s ease;
+  }
+  .boot-splash.hide { opacity: 0; pointer-events: none; }
+  .boot-splash img { width: 44%; max-width: 220px; }
+</style>
+</head>
+<body>
+
+<div class="boot-splash" id="splash">
+  <img src="assets/silentec-simbolo-blanco.png" alt="SILENTEC">
+</div>
+
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="components/ios-frame.jsx"></script>
+<script type="text/babel" src="components/tokens.jsx"></script>
+<script type="text/babel" src="components/icons.jsx"></script>
+<script type="text/babel" src="components/logo.jsx"></script>
+<script type="text/babel" src="components/data.jsx"></script>
+<script type="text/babel" src="components/screens-1.jsx"></script>
+<script type="text/babel" src="components/screens-2.jsx"></script>
+
+<script type="text/babel">
+function PWAApp() {
+  const [screen, setScreen] = React.useState(() => {
+    return localStorage.getItem('silentec-screen') || 'login';
+  });
+  const [themeKey] = React.useState('corporate');
+
+  const T = window.SILENTEC_THEMES[themeKey];
+  window.T = T;
+
+  const nav = (id) => {
+    setScreen(id);
+    localStorage.setItem('silentec-screen', id);
+    // Scroll content to top on navigation
+    setTimeout(() => {
+      const c = document.querySelector('.app-content');
+      if (c) c.scrollTop = 0;
+    }, 0);
+  };
+
+  // Hide splash after mount
+  React.useEffect(() => {
+    const t = setTimeout(() => {
+      const s = document.getElementById('splash');
+      if (s) {
+        s.classList.add('hide');
+        setTimeout(() => s.remove(), 500);
+      }
+    }, 600);
+    return () => clearTimeout(t);
+  }, []);
+
+  // Apply status bar color based on screen
+  React.useEffect(() => {
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (!meta) return;
+    // Most screens have white bg in corporate theme
+    meta.setAttribute('content', screen === 'login' ? '#1834FF' : T.bg);
+  }, [screen, T]);
+
+  const renderScreen = () => {
+    const p = window.SILENTEC_PRODUCTOS;
+    switch (screen) {
+      case 'login':   return <ScreenLogin onLogin={() => nav('home')}/>;
+      case 'home':    return <ScreenHome onNav={nav}/>;
+      case 'catalog': return <ScreenCatalog onNav={nav}/>;
+      case 'detail':  return <ScreenDetail product={p[0]} onBack={() => nav('catalog')}/>;
+      case 'chat':    return <ScreenChat/>;
+      case 'reports': return <ScreenReports/>;
+      case 'cart':    return <ScreenCart/>;
+      case 'profile': return <ScreenProfile/>;
+      default:        return <ScreenHome onNav={nav}/>;
+    }
+  };
+
+  const tabScreens = ['home', 'catalog', 'chat', 'reports', 'cart'];
+  const showTab = tabScreens.includes(screen);
+  const isLogin = screen === 'login';
+
+  return (
+    <div className={`app-root ${T.dark ? 'dark' : ''}`}
+         style={{ background: isLogin ? '#1834FF' : T.bg, color: T.text }}>
+      <div className="app-content">
+        {renderScreen()}
+      </div>
+      {showTab && <STTabBar active={screen} onNav={nav}/>}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<PWAApp/>);
+</script>
+
+</body>
+</html>

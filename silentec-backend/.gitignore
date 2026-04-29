@@ -1,0 +1,9 @@
+node_modules/
+
+# Variables de entorno (contiene contraseñas y API keys)
+.env
+
+# Base de datos SQLite (se regenera con npm run seed)
+db/*.db
+db/*.db-shm
+db/*.db-wal
