@@ -1,7 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Para emulador Android usa 10.0.2.2; para dispositivo físico o Expo Go en la misma red, usá tu IP local
-const BASE_URL = 'http://10.0.2.2:3001/api';
+const BASE_URL = __DEV__
+  ? 'http://localhost:3001/api'          // desarrollo web local
+  : 'https://silentec-production.up.railway.app/api'; // producción
 
 async function getToken() {
   return AsyncStorage.getItem('token');
